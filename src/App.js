@@ -4,36 +4,54 @@ import './App.css';
 import MovieList from './components/MovieList';
 import MovieListHeading from './components/MovieListHeading';
 import SearchBox from './components/SearchBox';
-
+import AddFavourites from './components/AddFavourites';
+import RemoveFavourites from './components/RemoveFavourites';
 
 const App = () => {
   const [movies, setMovies] = useState([]);
+  const [favourites, setFavourites] = useState([]);
   const [searchValue, setSearchValue] = useState('');
 
   const getMovieRequest = async () => {
-      const url = 'http://www.omdbapi.com/?s=iron man&apikey=f64b30cc';
+      const url = `http://www.omdbapi.com/?s=${searchValue}&apikey=f64b30cc`;
       const response = await fetch(url);
       const responseJson = await response.json();
 
-      console.log(responseJson);
+      if (responseJson.Search) {
       setMovies(responseJson.Search);
+      }
   };
 
   useEffect(() => {
-      getMovieRequest();
-      },
- []);
+      getMovieRequest(searchValue);
+      }, [searchValue]);
 
+  const addFavouriteMovie = (movie) => {
+    const newFavouriteList = [...favourites, movie];
+    setFavourites(newFavouriteList);
+
+  }
 
 
   return (
   <div className='container-fluid movie-app'>
-    <div className='row'>
+    <div className='row d-flex align-items-center mt-4 mb-4'>
       <MovieListHeading heading='Movies' />
-      <SearchBox />
+      <SearchBox searchValue={searchValue} 
+      setSearchValue={setSearchValue} />
     </div>
     <div className='row'>
-    <MovieList movies={movies} />
+    <MovieList movies={movies}
+     handleFavouritesClick={addFavouriteMovie}
+      favouriteComponent={AddFavourites} />
+  </div>
+  <div className='row d-flex align-items-center mt-4 mb-4'>
+      <MovieListHeading heading='Favourites' />
+    </div>
+    <div className='row'>
+    <MovieList movies={favourites}
+     handleFavouritesClick={addFavouriteMovie}
+      favouriteComponent={AddFavourites} />
   </div>
 </div>
   );
